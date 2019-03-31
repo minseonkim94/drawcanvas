@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <style id="compiled-css" type="text/css">
+      #canvas { border: 1px solid #000; cursor: pointer;}
+	</style>
+    <script type="text/javascript">
+    $(window).load(function(){
+
+var DrawingTool = {
+    canvas   : null,
+    context  : null,
+    drawX    : [],
+    drawY    : [],
+    drawDrag : [],
+    drawColor: [],
+    isDraw   : false,
+    colorTable : [
+        "#ff0000", //r 0 defalt
+        "#00ff00", //g 1
+        "#0000ff", //b 2
+        "#ffff00", //y 3
+        "#cb3594",
+        "#986828"
+    ]
+};
+
+DrawingTool.init = function() {
+    var self = this;
+    var offset = $("#canvas").offset();
+    this.canvas = document.getElementById("canvas");
+    this.context = this.canvas.getContext("2d");
+
+    $("#canvas").mousedown(function(event) {
+        self.isDraw = true;
+        self.addDraw(event.pageX - offset.left, event.pageY - offset.top);
+        self.reDraw();
+    });
+
+    $("#canvas").mousemove(function(event) {
+        if(self.isDraw) {
+            self.addDraw(event.pageX - offset.left, event.pageY - offset.top, true);
+            self.reDraw();
+        }
+    });
+
+    $("#canvas").bind("mouseup mouseleave", function(event) {
+        self.isDraw = false;
+    });
+
+    this.setColorButton();
+    this.setResetButton();
+    this.setlineWidth();
+};
+
+DrawingTool.addDraw = function(x, y, drawing) {
+    this.drawX.push(x);
+    this.drawY.push(y);
+    this.drawDrag.push(drawing);
+    this.drawColor.push(this.selectedColor || this.colorTable[0]);
+};
+
+drawingLineWidth = 5;
+
+DrawingTool.reDraw = function() {
+    this.context.lineJoin = "round";
+    this.context.lineWidth = drawingLineWidth;
+
+    for(var i = 0; i < this.drawX.length; i ++) {
+        this.context.beginPath();
+        if(this.drawDrag[i] && i) {
+            this.context.moveTo(this.drawX[i - 1], this.drawY[i - 1]);
+        } else {
+            this.context.moveTo(this.drawX[i] - 1, this.drawY[i]);
+        }
+
+        this.context.lineTo(this.drawX[i], this.drawY[i]);
+        this.context.closePath();
+        this.context.strokeStyle = this.drawColor[i];
+        this.context.stroke();
+    }
+};
+
+DrawingTool.setColorButton = function() {
+    var self = this;
+    $(document).keydown(function(event) {
+		if (event.keyCode == '71') {
+			self.selectedColor = self.colorTable[1];
+		} else if (event.keyCode == '89') {
+	    	self.selectedColor = self.colorTable[3];
+		} else if (event.keyCode == '66') {
+			self.selectedColor = self.colorTable[2];
+		}
+	});
+};
+
+DrawingTool.setResetButton = function() {
+    var self = this;
+    $(document).keydown(function(event) {
+		if (event.keyCode == '32') {
+			self.canvas.width = self.canvas.width;
+			self.drawX = [], self.drawY = [], self.drawDrag = [], self.drawColor = [];
+		}
+	});
+};
+
+DrawingTool.setlineWidth = function() {
+    var self = this;
+    $(document).keydown(function(event) {
+		if (event.keyCode == '38') {
+			if(drawingLineWidth == 7){
+				alert("maximum");
+			} else {
+				drawingLineWidth += 1;
+			}
+
+		} else if (event.keyCode == '40') {
+			if(drawingLineWidth == 1){
+				alert("minimum");
+			} else {
+				drawingLineWidth -= 1;
+			}
+
+		}
+	});
+};
+
+DrawingTool.init();
+
+
+
+});
+
+
+	</script>
+</head>
+<body>
+	<canvas id="canvas" width="500" height="500"></canvas>
+	<script type="text/javascript">
+
+    // tell the embed parent frame the height of the content
+    if (window.parent && window.parent.parent){
+      window.parent.parent.postMessage(["resultsFrame", {
+        height: document.body.getBoundingClientRect().height,
+        slug: "uFqGa"
+      }], "*")
+    }
+
+/*
+	$(document).keydown(function(event) {
+	  console.log(event.keyCode);
+	});
+*/
+    // always overwrite window.name, in case users try to set it manually
+    window.name = "result"
+	</script>
+</body>
+</html>
